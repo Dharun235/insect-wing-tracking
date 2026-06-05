@@ -1,0 +1,8 @@
+huggingface_hub
+opencv-python 
+numpy 
+tqdm 
+pillow
+python-dotenv
+requests
+kaggle

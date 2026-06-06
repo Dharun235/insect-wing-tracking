@@ -1,0 +1,95 @@
+# %% [code]
+import os
+import glob
+import subprocess
+import sys
+
+# 1. Paths
+INPUT_DIR = "/kaggle/input/insect-videos/"
+OUTPUT_DIR = "/kaggle/working/output"
+CODE_DIR = "/kaggle/working/Video-Depth-Anything"
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+# Clone repository
+if not os.path.exists(CODE_DIR):
+    print("Cloning Video-Depth-Anything repository...")
+    subprocess.run(["git", "clone", "https://github.com/DepthAnything/Video-Depth-Anything.git", CODE_DIR], check=True)
+
+os.chdir(CODE_DIR)
+
+# 🛠️ FIX 1: Quick patch for run.py to bypass PyTorch 2.6 weights_only strictness
+run_py_path = os.path.join(CODE_DIR, "run.py")
+if os.path.exists(run_py_path):
+    with open(run_py_path, "r") as f:
+        content = f.read()
+    # Replace the strict torch load line to allow older/custom weights format safely
+    if "weights_only=False" not in content:
+        content = content.replace(
+            "torch.load(f'./checkpoints/{checkpoint_name}_{args.encoder}.pth', map_location='cpu')",
+            "torch.load(f'./checkpoints/{checkpoint_name}_{args.encoder}.pth', map_location='cpu', weights_only=False)"
+        )
+        with open(run_py_path, "w") as f:
+            f.write(content)
+        print("Patched run.py for PyTorch 2.6 compatibility.")
+
+# 2. Handle model checkpoint download dynamically 
+ENCODER = "vitb"  # Options: 'vits' (Small), 'vitb' (Base), 'vitl' (Large)
+CHECKPOINT_DIR = os.path.join(CODE_DIR, "checkpoints")
+os.makedirs(CHECKPOINT_DIR, exist_ok=True)
+CHECKPOINT_PATH = os.path.join(CHECKPOINT_DIR, f"video_depth_anything_{ENCODER}.pth")
+
+# 🛠️ FIX 2: Correct Hugging Face URLs for each model type
+URL_MAP = {
+    "vits": "https://huggingface.co/depth-anything/Video-Depth-Anything-Small/resolve/main/video_depth_anything_vits.pth",
+    "vitb": "https://huggingface.co/depth-anything/Video-Depth-Anything-Base/resolve/main/video_depth_anything_vitb.pth",
+    "vitl": "https://huggingface.co/depth-anything/Video-Depth-Anything-Large/resolve/main/video_depth_anything_vitl.pth"
+}
+
+# Clear any previously failed/corrupted text files
+if os.path.exists(CHECKPOINT_PATH) and os.path.getsize(CHECKPOINT_PATH) < 1000000:
+    print("Removing corrupted or incomplete checkpoint file...")
+    os.remove(CHECKPOINT_PATH)
+
+if not os.path.exists(CHECKPOINT_PATH):
+    print(f"Downloading {ENCODER} model weights...")
+    public_url = URL_MAP[ENCODER]
+    subprocess.run(["curl", "-L", public_url, "-o", CHECKPOINT_PATH], check=True)
+
+# 3. Find and target video assets
+video_extensions = ['/**/*.mp4', '/**/*.avi', '/**/*.mov', '/**/*.mkv', '/**/*.MP4']
+input_videos = []
+for ext in video_extensions:
+    input_videos.extend(glob.glob(INPUT_DIR + ext, recursive=True))
+
+if not input_videos:
+    print(f"No target videos detected in {INPUT_DIR}.")
+    sys.exit(0)
+
+print(f"Discovered {len(input_videos)} processing target(s).\n")
+
+# 4. Processing Loop
+for idx, video_path in enumerate(input_videos, 1):
+    video_name = os.path.basename(video_path)
+    relative_path = os.path.relpath(os.path.dirname(video_path), INPUT_DIR)
+    
+    target_output_dir = os.path.join(OUTPUT_DIR, relative_path)
+    os.makedirs(target_output_dir, exist_ok=True)
+
+    print(f"--- Processing [{idx}/{len(input_videos)}]: {relative_path}/{video_name} ---")
+
+    cmd = [
+        sys.executable, "run.py",
+        "--input_video", video_path,
+        "--output_dir", target_output_dir,
+        "--encoder", ENCODER,
+        "--input_size", "266",
+        "--max_len", "-1",  # -1 processes full duration without splitting drops
+        "--max_res", "512"
+    ]
+
+    try:
+        subprocess.run(cmd, check=True)
+        print(f"Successfully rendered depth to {relative_path}/\n")
+    except subprocess.CalledProcessError as e:
+        print(f"Failure processing {video_name}: {e}\n")

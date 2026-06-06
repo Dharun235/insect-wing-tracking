@@ -1,6 +1,6 @@
 huggingface_hub
 opencv-python 
-numpy 
+numpy
 tqdm 
 pillow
 python-dotenv

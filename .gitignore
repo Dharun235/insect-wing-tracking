@@ -1,11 +1,24 @@
-/data
-/insect-videos
-/output
-/venv
-.env
-*.log
-*.pyc
-__pycache__/
 .DS_Store
+.env
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.log
+
+# data / generated outputs
+data/
+output/
+*.zip
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.pt
+
+# notebook checkpoints
+.ipynb_checkpoints/
+
+# editor
 .idea/
 .vscode/

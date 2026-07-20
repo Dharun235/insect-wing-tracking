@@ -57,3 +57,6 @@ hf-t1
 ```
 
 with your Hugging Face token.
+
+## Note
+- Store the outputs here - smb://sol.ita.chalmers.se/me-inter-flight and login with CID and password

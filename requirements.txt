@@ -4,10 +4,8 @@ torch
 torchvision
 tqdm
 pillow
-matplotlib
+labelme
+
+# Optional overlay/analysis helpers
 imageio
 imageio-ffmpeg
-einops
-easydict
-huggingface_hub
-decord

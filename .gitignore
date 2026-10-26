@@ -5,6 +5,11 @@ venv/
 __pycache__/
 *.pyc
 *.log
+insect-venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+sam2/
 
 # data / generated outputs
 data/
@@ -15,6 +20,8 @@ output/
 *.mov
 *.mkv
 *.pt
+*.pth
+*.ckpt
 
 # notebook checkpoints
 .ipynb_checkpoints/
@@ -22,3 +29,6 @@ output/
 # editor
 .idea/
 .vscode/
+
+# Labelme and annotation artifacts
+*.labelme.json

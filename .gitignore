@@ -9,6 +9,9 @@ insect-venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+.coverage.*
+*.egg-info/
 sam2/
 
 # data / generated outputs
@@ -22,6 +25,8 @@ output/
 *.pt
 *.pth
 *.ckpt
+*.tmp
+*.tmp.jpg
 
 # notebook checkpoints
 .ipynb_checkpoints/

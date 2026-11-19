@@ -1,11 +1,4 @@
+# Direct dependencies of the local wing and spider scripts.
 numpy
 opencv-python
-torch
-torchvision
-tqdm
-pillow
-labelme
-
-# Optional overlay/analysis helpers
-imageio
-imageio-ffmpeg
+matplotlib

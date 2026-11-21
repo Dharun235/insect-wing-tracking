@@ -1,4 +1,4 @@
-# Direct dependencies of the local wing and spider scripts.
+# Direct dependencies of local wing scripts.
 numpy
 opencv-python
 matplotlib

@@ -1,25 +1,26 @@
 # Spider workflow
 
-`spider_crop_segment.py` opens a native polygon selector, then processes every
-frame with blue HSV thresholding, Canny cleanup, and largest-component
-selection.
+Spider segmentation uses the external
+[Easy-Mask](https://github.com/Dharun235/easy-mask) tool. Run Easy-Mask on
+each `gold-16` through `gold-20` sequence, then export masks, overlays, and
+videos.
 
-```bash
-source .venv/bin/activate
-python scripts/spider_crop_segment.py gold-16
+Exports live under:
+
+```text
+output/spider_blue/gold-16_export/
+├── masks/
+└── overlays/
 ```
 
-Controls: left-click adds a polygon point, right-click removes one, `C` clears,
-and Enter/Space confirms. Use `gold-17` through `gold-20` for the other inputs.
+Mask videos live under:
 
-Portable paths:
-
-```bash
-python scripts/spider_crop_segment.py gold-16 \
-  --input /path/to/data/frames \
-  --output /path/to/output/spider
+```text
+output/spider_blue/videos/gold-16-mask.mp4
+output/spider_blue/videos/gold-17-mask.mp4
+output/spider_blue/videos/gold-18-mask.mp4
+output/spider_blue/videos/gold-19-mask.mp4
+output/spider_blue/videos/gold-20-mask.mp4
 ```
 
-Input: `<input>/gold-16/00000.jpg ...`
-
-Output: `<output>/gold-16/00000.jpg ...` (blue largest component on black).
+Overlay videos use the same names with `-overlay.mp4`.
